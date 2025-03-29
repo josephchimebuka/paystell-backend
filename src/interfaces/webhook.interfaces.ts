@@ -29,6 +29,12 @@ export type Merchant = {
   name: string;
   email: string;
   isActive: boolean;
+  business_name?: string;
+  business_description?: string;
+  business_address?: string;
+  business_phone?: string;
+  business_email?: string;
+  business_logo_url?: string;
   createdAt: Date;
   updatedAt: Date;
 };
