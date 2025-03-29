@@ -1,7 +1,11 @@
 import { Merchant } from "../interfaces/webhook.interfaces";
 import { Repository } from "typeorm";
+import { validate } from "class-validator";
 import { MerchantEntity } from "../entities/Merchant.entity";
 import AppDataSource from "../config/db";
+import { CreateMerchantDTO } from "../../src/dtos/CreateMerchantDTO";
+import { UpdateMerchantProfileDTO } from "../../src/dtos/UpdateMerchantProfileDTO";
+import { CreateMerchantProfileDTO } from "../../src/dtos/CreateMerchantProfileDTO";
 
 export class MerchantAuthService {
   private merchantRepository: Repository<MerchantEntity>;
@@ -10,7 +14,16 @@ export class MerchantAuthService {
     this.merchantRepository = AppDataSource.getRepository(MerchantEntity);
   }
 
-  async register(merchantData: Merchant): Promise<Merchant> {
+  async register(merchantData: CreateMerchantDTO): Promise<Merchant> {
+    const dto = Object.assign(new CreateMerchantDTO(), merchantData);
+    const errors = await validate(dto);
+    
+    if (errors.length > 0) {
+      throw new Error(
+        errors.map((err) => Object.values(err.constraints || {})).join(", "),
+      );
+    }
+
     const merchantExists = await this.merchantRepository.findOne({
       where: { email: merchantData.email },
     });
@@ -72,5 +85,96 @@ export class MerchantAuthService {
     }
 
     return merchant;
+  }
+  
+  async getBusinessProfileById(id: string): Promise<Partial<Merchant>> {
+    const merchant = await this.merchantRepository.findOne({
+      where: { id },
+    });
+
+    if (!merchant) {
+      throw new Error("Merchant not found");
+    }
+
+    return {
+      business_name: merchant.business_name,
+      business_email: merchant.business_email,
+      business_description: merchant.business_description,
+      business_address: merchant.business_address,
+      business_phone: merchant.business_phone,
+      business_logo_url: merchant.business_logo_url,
+    };
+
+  }
+
+  async createMerchantProfile(merchantId: string, profileData: CreateMerchantProfileDTO): Promise<Merchant> {
+    const dto = Object.assign(new CreateMerchantProfileDTO(), profileData);
+    const errors = await validate(dto);
+    
+    if (errors.length > 0) {
+      throw new Error(
+        errors.map((err) => Object.values(err.constraints || {})).join(", "),
+      );
+    }
+
+    const merchant = await this.merchantRepository.findOne({
+      where: { id: merchantId },
+    });
+
+    if (!merchant) {
+      throw new Error('Merchant not found');
+    }
+
+    const updatedMerchant = this.merchantRepository.merge(merchant, profileData);
+    return this.merchantRepository.save(updatedMerchant);
+
+  }
+
+  async updateMerchantProfile(merchantId: string, profileData: UpdateMerchantProfileDTO): Promise<Merchant> {
+    const dto = Object.assign(new UpdateMerchantProfileDTO(), profileData);
+    const errors = await validate(dto);
+    
+    if (errors.length > 0) {
+      throw new Error(
+        errors.map((err) => Object.values(err.constraints || {})).join(", "),
+      );
+    }
+
+    const merchant = await this.merchantRepository.findOne({
+      where: { id: merchantId },
+    });
+
+    if (!merchant) {
+      throw new Error('Merchant not found');
+    }
+
+    const updatedMerchant = this.merchantRepository.merge(merchant, profileData);
+    return this.merchantRepository.save(updatedMerchant);
+  }
+
+  async updateLogo(merchantId: string, logoUrl: string): Promise<Merchant> {
+    const merchant = await this.merchantRepository.findOne({
+      where: { id: merchantId },
+    });
+
+    if (!merchant) {
+      throw new Error('Merchant not found');
+    }
+
+    merchant.business_logo_url = logoUrl;
+    return this.merchantRepository.save(merchant);
+  }
+
+  async deleteLogo(merchantId: string): Promise<Merchant> {
+    const merchant = await this.merchantRepository.findOne({
+      where: { id: merchantId },
+    });
+
+    if (!merchant) {
+      throw new Error('Merchant not found');
+    }
+
+    merchant.business_logo_url = '';
+    return this.merchantRepository.save(merchant);
   }
 }
