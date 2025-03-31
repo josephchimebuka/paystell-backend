@@ -6,6 +6,7 @@ import AppDataSource from "../config/db";
 import { CreateMerchantDTO } from "../../src/dtos/CreateMerchantDTO";
 import { UpdateMerchantProfileDTO } from "../../src/dtos/UpdateMerchantProfileDTO";
 import { CreateMerchantProfileDTO } from "../../src/dtos/CreateMerchantProfileDTO";
+import { FileUploadService } from "./fileUpload.service";
 
 export class MerchantAuthService {
   private merchantRepository: Repository<MerchantEntity>;
@@ -166,6 +167,7 @@ export class MerchantAuthService {
   }
 
   async deleteLogo(merchantId: string): Promise<Merchant> {
+    const fileUploadService = new FileUploadService();
     const merchant = await this.merchantRepository.findOne({
       where: { id: merchantId },
     });
@@ -173,7 +175,10 @@ export class MerchantAuthService {
     if (!merchant) {
       throw new Error('Merchant not found');
     }
-
+    const fileUrl = merchant.business_logo_url;
+    if (fileUrl) {
+      await fileUploadService.deleteFile(fileUrl);
+    }
     merchant.business_logo_url = '';
     return this.merchantRepository.save(merchant);
   }
