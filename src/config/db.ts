@@ -6,6 +6,9 @@ import { TwoFactorAuth } from "../entities/TwoFactorAuth";
 import { Session } from "../entities/Session";
 import { EmailVerification } from "../entities/emailVerification";
 import { WalletVerification } from "../entities/WalletVerification";
+import { MerchantEntity } from "../entities/Merchant.entity";
+import { MerchantWebhookEntity } from "../entities/MerchantWebhook.entity";
+import { MerchantWebhookEventEntity } from "../entities/MerchantWebhookEvent.entity";
 
 dotenv.config();
 
@@ -26,6 +29,9 @@ const AppDataSource = new DataSource({
     Session,
     EmailVerification,
     WalletVerification,
+    MerchantEntity,
+    MerchantWebhookEntity,
+    MerchantWebhookEventEntity,
   ],
 });
 

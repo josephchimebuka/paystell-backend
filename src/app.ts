@@ -13,6 +13,7 @@ import emailVerification from "./routes/emailVerification.routes";
 import PaymentRoute from "./routes/PaymentLink.routes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import merchanRoutes from "./routes/merchantRoutes";
 import healthRouter from "./routes/health.routes";
 import walletVerificationRoutes from "./routes/wallet-verification.routes";
 import merchantWebhookQueueRoutes from "./routes/merchantWebhookQueue.routes";
@@ -56,6 +57,7 @@ app.use("/paymentlink", PaymentRoute);
 app.use("/auth", authRoutes);
 app.use("/wallet-verification", walletVerificationRoutes);
 app.use("/users", userRoutes);
+app.use("/merchants", merchanRoutes);
 app.use("/health", healthRouter);
 app.use("/webhook-queue/merchant", merchantWebhookQueueRoutes);
 
