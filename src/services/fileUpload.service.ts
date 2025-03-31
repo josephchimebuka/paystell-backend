@@ -28,7 +28,7 @@ export class FileUploadService {
   public upload = multer({
     storage: this.storage,
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB limit
+      fileSize: 3 * 1024 * 1024, // 3MB limit
     },
     fileFilter: (req, file, cb) => {
       if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif)$/)) {
